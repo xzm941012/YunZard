@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">云智造</string>
+    <string name="color_spinner_hint">Choose a number</string>
+</resources>
