@@ -25,6 +25,7 @@ import com.example.jamiexiong.myapplication.Util.UrlUtil;
 import com.example.jamiexiong.myapplication.activity.ActivityProduceDetai;
 import com.example.jamiexiong.myapplication.adapter.ItemProduceAdapter;
 import com.example.jamiexiong.myapplication.adapter.ItemProduceAdapter1;
+import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.example.jamiexiong.myapplication.bean.ProduceBean;
 import com.example.jamiexiong.myapplication.poupwindows.SearchPoup;
 import com.google.gson.Gson;
@@ -122,7 +123,39 @@ public class FragmentProduce1 extends BaseFragment {
             @Override
             public void onResponse(String response) {
                 hud.dismiss();
-                ProduceBean resultCode = new Gson().fromJson(response.toString(),ProduceBean.class);
+                ProduceBean resultCode = null;
+
+                try {
+                    resultCode = new Gson().fromJson(response.toString(),ProduceBean.class);
+                }catch(Exception e){
+                    Log.e("TAG", e.getMessage(), e);
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .show();
+                }
+                if(resultCode ==null){
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .show();
+
+                    return;
+                }
                 resultBeanList = resultCode.getResult();
 
                 Log.d("生产列表", response.toString());

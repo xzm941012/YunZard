@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -26,6 +27,7 @@ import com.example.jamiexiong.myapplication.Util.Md5Util;
 import com.example.jamiexiong.myapplication.Util.RequestCode;
 import com.example.jamiexiong.myapplication.Util.ResultCode;
 import com.example.jamiexiong.myapplication.Util.UrlUtil;
+import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.example.jamiexiong.myapplication.bean.ErCodeResult;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
@@ -195,7 +197,38 @@ public class ActivityRegister1 extends FragmentActivity {
             @Override
             public void onResponse(String response) {
                 hud.dismiss();
-                ErCodeResult resultCode = new Gson().fromJson(response.toString(),ErCodeResult.class);
+                ErCodeResult resultCode = null;
+
+                try {
+                    resultCode = new Gson().fromJson(response.toString(),ErCodeResult.class);
+                }catch(Exception e){
+                    Log.e("ActivityRegister1", e.getMessage(), e);
+
+                    new CircleDialog.Builder(ActivityRegister1.this)
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    finish();
+                                }
+                            })
+                            .show();
+                }
+                if(resultCode ==null){
+
+                    new CircleDialog.Builder(ActivityRegister1.this)
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    finish();
+                                }
+                            })
+                            .show();
+                    return;
+                }
 
                 Log.d("TAG", response.toString());
 
@@ -227,6 +260,7 @@ public class ActivityRegister1 extends FragmentActivity {
                 return map;
             }
         };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(8000,1,1.0f));
         mQueue.add(stringRequest);
     }
 

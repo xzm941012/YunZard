@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -19,6 +20,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.jamiexiong.myapplication.R;
 import com.example.jamiexiong.myapplication.Util.Md5Util;
 import com.example.jamiexiong.myapplication.Util.UrlUtil;
+import com.example.jamiexiong.myapplication.application.MApplication;
+import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.example.jamiexiong.myapplication.bean.ResultCode;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
@@ -79,11 +82,42 @@ public class ActivityWelcome extends FragmentActivity {
                             @Override
                             public void onResponse(String response) {
                                 hud.dismiss();
-                                ResultCode resultCode = new Gson().fromJson(response.toString(), ResultCode.class);
+                                ResultCode resultCode = null;
 
+                                try {
+                                    resultCode = new Gson().fromJson(response.toString(), ResultCode.class);
+                                }catch(Exception e){
+                                    Log.e("TAG", e.getMessage(), e);
+
+                                    new CircleDialog.Builder(ActivityWelcome.this)
+                                            .setTitle("提示")
+                                            .setText("网络发生异常")
+                                            .setPositive("确定", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    finish();
+                                                }
+                                            })
+                                            .show();
+                                }
+                                if(resultCode ==null){
+
+                                    new CircleDialog.Builder(ActivityWelcome.this)
+                                            .setTitle("提示")
+                                            .setText("网络发生异常")
+                                            .setPositive("确定", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    finish();
+                                                }
+                                            })
+                                            .show();
+                                    return;
+                                }
                                 Log.d("TAG", response.toString());
 
                                 if (resultCode.getCode().equals("200")) {
+                                    MApplication.setUser(resultCode);
                                     startActivity(new Intent(ActivityWelcome.this, ActivityHome.class));
                                     finish();
                                 } else {

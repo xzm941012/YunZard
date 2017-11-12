@@ -22,6 +22,7 @@ import com.example.jamiexiong.myapplication.Util.RequestCode;
 import com.example.jamiexiong.myapplication.Util.ResultCode;
 import com.example.jamiexiong.myapplication.activity.ActivityFocus;
 import com.example.jamiexiong.myapplication.activity.ActivityLogin;
+import com.example.jamiexiong.myapplication.application.MApplication;
 import com.mylhyl.circledialog.CircleDialog;
 import com.mylhyl.circledialog.callback.ConfigButton;
 import com.mylhyl.circledialog.callback.ConfigDialog;
@@ -90,6 +91,7 @@ public class FragmentMy1 extends Fragment {
     }
 
     private void initLayout(){
+        logon.setText(MApplication.getUser().getResult().getNickname());
         config = new ImgSelConfig.Builder(getContext(), loader)
                 // 是否多选, 默认true
                 .multiSelect(false)
@@ -122,10 +124,10 @@ public class FragmentMy1 extends Fragment {
     private void getEvent(View view) {
         switch (view.getId()) {
             case R.id.relativeLayout3:
-                Toast.makeText(getContext(),"功能开发中",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(),"功能开发中",Toast.LENGTH_SHORT).show();
                 break;
             case R.id.relativeLayout23:
-                Toast.makeText(getContext(),"功能开发中",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(),"功能开发中",Toast.LENGTH_SHORT).show();
                 break;
             case R.id.relativeLayout31:
                 startActivity(new Intent(getActivity(), ActivityFocus.class));
@@ -161,7 +163,7 @@ public class FragmentMy1 extends Fragment {
                                 //取消按钮字体颜色
                                 params.textColor = Color.RED;
                             }
-                        }).show();
+                        });
                 break;
         }
     }

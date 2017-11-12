@@ -382,6 +382,35 @@
             </RelativeLayout>
 
             <LinearLayout
+                android:id="@+id/ssview2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ListView
+                    android:id="@+id/listss"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <RelativeLayout
+                    android:id="@+id/nomessageview"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/detailcolheight"
+                    android:background="@color/white"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/textView492"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:text="没有查找到数据"
+                        android:textColor="@color/textshadowlight" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/ssview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

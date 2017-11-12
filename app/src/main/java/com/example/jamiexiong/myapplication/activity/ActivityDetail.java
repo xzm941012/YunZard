@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -18,8 +19,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.jamiexiong.myapplication.R;
 import com.example.jamiexiong.myapplication.Util.UrlUtil;
+import com.example.jamiexiong.myapplication.adapter.DeviceSSAdapter;
+import com.example.jamiexiong.myapplication.bean.DeviceItemSS;
 import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.mylhyl.circledialog.CircleDialog;
 
@@ -29,6 +33,7 @@ import org.xutils.view.annotation.ViewInject;
 import org.xutils.x;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -39,6 +44,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 @ContentView(R.layout.activity_detail)
 public class ActivityDetail extends FragmentActivity {
+
+    List<DeviceItemSS.DeviceItemSSItem> resultBean  = null;
+
+    @ViewInject(R.id.listss)
+    ListView ssList;
 
     @ViewInject(R.id.textView322)
     TextView zqText;
@@ -97,7 +107,7 @@ public class ActivityDetail extends FragmentActivity {
     @ViewInject(R.id.imageView144)
     ImageView down2;
 
-    @ViewInject(R.id.ssview)
+    @ViewInject(R.id.ssview2)
     View ssview;
 
     @ViewInject(R.id.imageView244)
@@ -124,6 +134,7 @@ public class ActivityDetail extends FragmentActivity {
 
     private int press1,press2,press3,press4 =0;
     private final String detailUrl = "http://"+ UrlUtil.url1+"/request?rname=i_plc.Page.mobile.machq.machInfo.machMaintenace";
+    private final String ssUrl = "http://"+ UrlUtil.url1+"/request?rname=i_plc.Page.zutai.shopboard.get_realtime_data";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,11 +155,41 @@ public class ActivityDetail extends FragmentActivity {
 
     private void initPageDate(){
         hud.show();
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, detailUrl, new Response.Listener<String>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, ssUrl, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 hud.dismiss();
-                DevideDetailBean result = new Gson().fromJson(response.toString(),DevideDetailBean.class);
+                DevideDetailBean result = null;
+                try {
+                    result = new Gson().fromJson(response.toString(), DevideDetailBean.class);
+                }catch(Exception e){
+                    Log.e("TAG", e.getMessage(), e);
+
+                    new CircleDialog.Builder(ActivityDetail.this)
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    finish();
+                                }
+                            })
+                            .show();
+                }
+                if(result ==null){
+
+                    new CircleDialog.Builder(ActivityDetail.this)
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    finish();
+                                }
+                            })
+                            .show();
+                    return;
+                }
                 DevideDetailBean.DetailResultBean resultBean = result.getResult();
 
                 zqText.setText(resultBean.getMaintenanceperiod());
@@ -160,8 +201,9 @@ public class ActivityDetail extends FragmentActivity {
                 nameText.setText(getIntent().getStringExtra("name")+"：");
                 nameText1.setText(getIntent().getStringExtra("name"));
                 xhText.setText(getIntent().getStringExtra("code"));
+                Log.d("CODE:", getIntent().getStringExtra("code"));
                 xhText1.setText(getIntent().getStringExtra("code"));
-                
+
                 String status = getIntent().getStringExtra("status");
                 if (status.equals("online")) {
                     statusText.setText("正常运行");
@@ -187,6 +229,48 @@ public class ActivityDetail extends FragmentActivity {
                 }
 
                 Log.d("详情页面：", response.toString());
+
+                if(result.getCode() == 200){
+
+                }else{
+                    new CircleDialog.Builder(ActivityDetail.this)
+                            .setTitle("提示")
+                            .setText("数据异常")
+                            .setPositive("确定", null)
+                            .show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                hud.dismiss();
+                Log.e("TAG", error.getMessage(), error);
+
+                new CircleDialog.Builder(ActivityDetail.this)
+                        .setTitle("提示")
+                        .setText("网络发生异常")
+                        .setPositive("确定", null)
+                        .show();
+            }}) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("machCode", getIntent().getStringExtra("code"));
+                return map;
+            }
+        };
+        mQueue.add(stringRequest);
+    }
+
+    private void initSS(){
+        hud.show();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, detailUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                hud.dismiss();
+                DeviceItemSS result = new Gson().fromJson(response.toString(),DeviceItemSS.class);
+                resultBean = result.getResult();
+                ssList.setAdapter(new DeviceSSAdapter(ActivityDetail.this,resultBean));
 
                 if(result.getCode() == 200){
 
@@ -246,6 +330,9 @@ public class ActivityDetail extends FragmentActivity {
                     ssview.setVisibility(View.VISIBLE);
                     rigth2.setVisibility(View.INVISIBLE);
                     down2.setVisibility(View.VISIBLE);
+                    if(resultBean==null){
+                        initSS();
+                    }
                 }else{
                     press2 = 0;
                     ssview.setVisibility(View.GONE);

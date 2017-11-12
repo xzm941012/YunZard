@@ -27,12 +27,14 @@ import com.example.jamiexiong.myapplication.Util.UrlUtil;
 import com.example.jamiexiong.myapplication.adapter.FocusAdapter;
 import com.example.jamiexiong.myapplication.adapter.ItemDeviceAdapter1;
 import com.example.jamiexiong.myapplication.bean.DeviceItemBean;
+import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.example.jamiexiong.myapplication.bean.FocusListBean;
 import com.example.jamiexiong.myapplication.fragment.FragmentDevice1;
 import com.example.jamiexiong.myapplication.fragment.FragmentHome1;
 import com.example.jamiexiong.myapplication.fragment.FragmentMy1;
 import com.example.jamiexiong.myapplication.fragment.FragmentProduce1;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.mylhyl.circledialog.CircleDialog;
 import com.scu.miomin.shswiperefresh.view.SHListView;
@@ -101,7 +103,40 @@ public class ActivityFocus extends FragmentActivity{
             @Override
             public void onResponse(String response) {
                 hud.dismiss();
-                FocusListBean resultCode = new Gson().fromJson(response.toString(),FocusListBean.class);
+                FocusListBean resultCode = null;
+
+                try {
+                    resultCode = new Gson().fromJson(response.toString(),FocusListBean.class);
+                }catch(JsonSyntaxException e){
+                    hud.dismiss();
+                    Log.e("TAG", e.getMessage(), e);
+
+                    new CircleDialog.Builder(ActivityFocus.this)
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    finish();
+                                }
+                            })
+                            .show();
+                }
+                if(resultCode ==null){
+                    hud.dismiss();
+
+                    new CircleDialog.Builder(ActivityFocus.this)
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    finish();
+                                }
+                            })
+                            .show();
+                    return;
+                }
 
                 Log.d("设备列表：", response.toString());
 

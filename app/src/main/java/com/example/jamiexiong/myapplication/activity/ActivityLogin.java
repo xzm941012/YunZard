@@ -25,8 +25,10 @@ import com.example.jamiexiong.myapplication.R;
 import com.example.jamiexiong.myapplication.Util.Md5Util;
 import com.example.jamiexiong.myapplication.Util.RequestCode;
 import com.example.jamiexiong.myapplication.Util.UrlUtil;
+import com.example.jamiexiong.myapplication.application.MApplication;
 import com.example.jamiexiong.myapplication.bean.ResultCode;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.mylhyl.circledialog.CircleDialog;
 
@@ -111,11 +113,41 @@ public class ActivityLogin extends FragmentActivity {
                         @Override
                         public void onResponse(String response) {
                             hud.dismiss();
-                            ResultCode resultCode = new Gson().fromJson(response.toString(),ResultCode.class);
+                            ResultCode resultCode = null;
+                            try {
+                                resultCode = new Gson().fromJson(response.toString(), ResultCode.class);
+                            }catch( Exception e){
+                                Log.e("TAG", e.getMessage(), e);
+                                new CircleDialog.Builder(ActivityLogin.this)
+                                        .setTitle("提示")
+                                        .setText("网络发生异常!")
+                                        .setPositive("确定", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                finish();
+                                            }
+                                        })
+                                        .show();
+                            }
+                            if(resultCode ==null){
+
+                                new CircleDialog.Builder(ActivityLogin.this)
+                                        .setTitle("提示")
+                                        .setText("网络发生异常")
+                                        .setPositive("确定", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                finish();
+                                            }
+                                        })
+                                        .show();
+                                return;
+                            }
 
                             Log.d("TAG", response.toString());
 
                             if(resultCode.getCode().equals("200")){
+                                MApplication.setUser(resultCode);
                                 SharedPreferences sp = ActivityLogin.this.getSharedPreferences("app",MODE_PRIVATE);
                                 //获取编辑对象
                                 SharedPreferences.Editor edit = sp.edit();
@@ -124,11 +156,11 @@ public class ActivityLogin extends FragmentActivity {
                                 edit.putString("password",password);
                                 //提交
                                 edit.commit();
-                                new CircleDialog.Builder(ActivityLogin.this)
-                                        .setTitle("提示")
-                                        .setText("登录成功!")
-                                        .setPositive("确定", null)
-                                        .show();
+                                //new CircleDialog.Builder(ActivityLogin.this)
+                                  //      .setTitle("提示")
+                                    //    .setText("登录成功!")
+                                      //  .setPositive("确定", null)
+                                        //.show();
                                 startActivity(new Intent(ActivityLogin.this,ActivityHome.class));
                                 finish();
                             }else{

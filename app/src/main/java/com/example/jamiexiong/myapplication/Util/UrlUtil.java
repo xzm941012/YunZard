@@ -6,5 +6,6 @@ package com.example.jamiexiong.myapplication.Util;
 
 public class UrlUtil {
     //public static String url1 = "192.168.0.88";
-    public static String url1 = "xdf.i-plc.cn:8081";
+    //public static String url1 = "shjialang.i-plc.net:8000";
+    public static String url1 = "yiji.i-plc.net:8000";
 }

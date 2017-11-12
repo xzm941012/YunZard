@@ -53,24 +53,24 @@
 
     </LinearLayout>
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="16dp"
         android:background="@drawable/user_bg"
         android:padding="10dp"
-        android:src="@drawable/user" />
+        android:src="@drawable/userlogo" />
 
     <TextView
         android:id="@+id/tvNamePlate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="JOHN DOE"
-        android:layout_marginLeft="16dp"
-        android:layout_marginBottom="10dp"
         android:layout_gravity="bottom|start"
-        android:textStyle="bold"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="30dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
 </FrameLayout>

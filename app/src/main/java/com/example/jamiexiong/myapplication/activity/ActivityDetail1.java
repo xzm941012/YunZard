@@ -88,7 +88,7 @@ public class ActivityDetail1 extends FragmentActivity {
     private void initTab(){
         navigationTabStrip.setTitles("详细信息", "图表查看");
         navigationTabStrip.setTabIndex(0, true);
-        navigationTabStrip.setTitleSize(45);
+        //navigationTabStrip.setTitleSize(35);
         navigationTabStrip.setStripColor(Color.RED);
         navigationTabStrip.setStripWeight(6);
         navigationTabStrip.setStripFactor(2);

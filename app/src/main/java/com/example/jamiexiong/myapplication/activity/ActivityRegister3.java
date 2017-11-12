@@ -22,12 +22,14 @@ import com.example.jamiexiong.myapplication.R;
 import com.example.jamiexiong.myapplication.Util.Md5Util;
 import com.example.jamiexiong.myapplication.Util.ResultCode;
 import com.example.jamiexiong.myapplication.Util.UrlUtil;
+import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.example.jamiexiong.myapplication.bean.GroupBean;
 import com.example.jamiexiong.myapplication.bean.JobBean;
 import com.example.jamiexiong.myapplication.bean.RegisterBean;
 import com.google.gson.Gson;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.mylhyl.circledialog.CircleDialog;
 
 import org.xutils.view.annotation.ContentView;
 import org.xutils.view.annotation.Event;
@@ -72,6 +74,8 @@ public class ActivityRegister3 extends FragmentActivity {
 
     private String jobLx = "";
 
+    private List<String> jobIds =new ArrayList<String>();
+
     private final String getGroupUrl = "http://"+ UrlUtil.url1+"/request?rname=i_plc.Page.mobile.user.Industry.TypeGroupList";
 
     private final String getJobUrl = "http://"+UrlUtil.url1+"/request?rname=i_plc.Page.mobile.user.Industry.TypeListList";
@@ -113,7 +117,7 @@ public class ActivityRegister3 extends FragmentActivity {
         jobSpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
-                jobLx = item;
+                jobLx = jobIds.get(position);
 
                 Toast.makeText(ActivityRegister3.this,"Clicked " + item, Toast.LENGTH_LONG).show();
             }
@@ -159,7 +163,38 @@ public class ActivityRegister3 extends FragmentActivity {
             @Override
             public void onResponse(String response) {
                 hud.dismiss();
-                GroupBean resultCode = new Gson().fromJson(response.toString(),GroupBean.class);
+                GroupBean resultCode = null;
+
+                try {
+                    resultCode = new Gson().fromJson(response.toString(),GroupBean.class);
+                }catch(Exception e){
+                    Log.e("TAG", e.getMessage(), e);
+
+                    new CircleDialog.Builder(ActivityRegister3.this)
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    finish();
+                                }
+                            })
+                            .show();
+                }
+                if(resultCode ==null){
+
+                    new CircleDialog.Builder(ActivityRegister3.this)
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    finish();
+                                }
+                            })
+                            .show();
+                    return;
+                }
 
                 Log.d("TAG", response.toString());
 
@@ -186,7 +221,7 @@ public class ActivityRegister3 extends FragmentActivity {
             }});
         mQueue.add(stringRequest);
     }
-    //获取行业分组
+    //获取行业
     private void getJobs(final String group){
         hud.show();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, getJobUrl, new Response.Listener<String>() {
@@ -199,11 +234,13 @@ public class ActivityRegister3 extends FragmentActivity {
 
                 if(resultCode.getCode() == 200){
                     List<String> groups = new ArrayList<>();
+                    jobIds = new ArrayList<>();
                     for(JobBean.ResultBean resultBean : resultCode.getResult()){
                         groups.add(resultBean.getText());
+                        jobIds.add(resultBean.getValue());
                     }
                     if(groups.size()>0){
-                        jobLx = groups.get(0);
+                        jobLx = jobIds.get(0);
                     }
                     jobSpinner.setItems(groups);
                 }else{
@@ -260,6 +297,7 @@ public class ActivityRegister3 extends FragmentActivity {
                 map.put("password", Md5Util.md5(getIntent().getStringExtra("password")));
                 map.put("industryTypeID", jobLx);
                 map.put("p_TMP", getIntent().getStringExtra("erCode"));
+                System.out.println("chuanzhi:"+map);
                 return map;
             }
         };

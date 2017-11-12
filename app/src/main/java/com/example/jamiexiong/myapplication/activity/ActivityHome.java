@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.example.jamiexiong.myapplication.R;
 import com.example.jamiexiong.myapplication.Util.RequestCode;
 import com.example.jamiexiong.myapplication.Util.ResultCode;
+import com.example.jamiexiong.myapplication.application.MApplication;
 import com.example.jamiexiong.myapplication.fragment.FragmentDevice;
 import com.example.jamiexiong.myapplication.fragment.FragmentDevice1;
 import com.example.jamiexiong.myapplication.fragment.FragmentHome;
@@ -37,17 +39,23 @@ import java.io.File;
 import java.util.List;
 
 
-@ContentView(R.layout.activity_home1)
+@ContentView(R.layout.activity_home2)
 public class ActivityHome extends FragmentActivity{
 //晚上资料只是确认自己的标签，更具标签选择活动标签
 
-    Fragment fm1=new FragmentHome1();
+    Fragment fm1=null;
     Fragment fm2=new FragmentDevice1();
-    Fragment fm3=new FragmentProduce1();
+    Fragment fm3=null;
     FragmentMy1 fm4=new FragmentMy1();
 
     @ViewInject(R.id.navigation_view)
     SublimeNavigationView sublimeNavigationView;
+
+    @ViewInject(R.id.navigation_view)
+    View leftMenu;
+
+    @ViewInject(R.id.homeview)
+    DrawerLayout layout;
 
     @ViewInject(R.id.bt1)
     View bt1;
@@ -90,6 +98,17 @@ public class ActivityHome extends FragmentActivity{
     int twoThouch=0;
     int i=0;
 
+    public void openDrawer(){
+        //Toast.makeText(this,"123",Toast.LENGTH_SHORT).show();
+        layout.openDrawer(leftMenu);
+        ((TextView)leftMenu.findViewById(R.id.tvNamePlate)).setText(MApplication.getUser().getResult().getNickname());
+
+    }
+
+    public void closeDrawer(){
+        layout.closeDrawer(leftMenu);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,7 +131,7 @@ public class ActivityHome extends FragmentActivity{
         FragmentTransaction ts=getSupportFragmentManager().beginTransaction();
         ts.replace(R.id.frameLayout, fm3) .commit();
         */
-        bt1.performClick();
+        bt2.performClick();
     }
     private void initUser(){
 

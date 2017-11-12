@@ -25,9 +25,9 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
                     android:layout_centerVertical="true"
-                    android:layout_toEndOf="@+id/imageView52">
+                    android:layout_toEndOf="@+id/imageView52"
+                    android:orientation="horizontal">
 
                     <RelativeLayout
                         android:layout_width="wrap_content"
@@ -379,6 +379,19 @@
                     android:text="实时数据"
                     android:textColor="@color/textshadow" />
             </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ssview2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ListView
+                    android:id="@+id/listss"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/ssview"

@@ -19,8 +19,10 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.jamiexiong.myapplication.R;
 import com.example.jamiexiong.myapplication.Util.UrlUtil;
+import com.example.jamiexiong.myapplication.activity.ActivityHome;
 import com.example.jamiexiong.myapplication.adapter.ItemHomeAdapter1;
 import com.example.jamiexiong.myapplication.bean.DeviceTypeBean;
+import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.example.jamiexiong.myapplication.bean.HomeBean;
 import com.example.jamiexiong.myapplication.bean.HomeBean1;
 import com.google.gson.Gson;
@@ -29,6 +31,10 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import com.mylhyl.circledialog.CircleDialog;
 import com.scu.miomin.shswiperefresh.core.SHSwipeRefreshLayout;
 import com.scu.miomin.shswiperefresh.view.SHListView;
+
+import org.xutils.view.annotation.ContentView;
+import org.xutils.view.annotation.Event;
+import org.xutils.view.annotation.ViewInject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,12 +45,15 @@ import java.util.Map;
  * Created by jamiexiong on 2017/6/6.
  */
 
-public class FragmentHome1 extends Fragment {
+@ContentView(R.layout.fragment_home1)
+public class FragmentHome1 extends BaseFragment {
 
     private List<String> mDatas;
 
+    @ViewInject(R.id.swipeRefreshLayout)
     private SHSwipeRefreshLayout swipeRefreshLayout;
 
+    @ViewInject(R.id.shLv)
     private SHListView shLv;
     private KProgressHUD hud;
     private RequestQueue mQueue;
@@ -54,16 +63,8 @@ public class FragmentHome1 extends Fragment {
     private View view;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        view = inflater.inflate(R.layout.fragment_home1, container, false);
-        return view;
-    }
-
-    @Override
     public void onViewCreated(View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
-
         mQueue = Volley.newRequestQueue(getContext());
         hud = KProgressHUD.create(getContext())
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
@@ -74,12 +75,13 @@ public class FragmentHome1 extends Fragment {
 
         initSwipeRefreshLayout();
         initLv();
+
     }
 
 
+
     private void initLayout(){
-        swipeRefreshLayout = (SHSwipeRefreshLayout)view.findViewById(R.id.swipeRefreshLayout);
-        shLv = (SHListView)view.findViewById(R.id.shLv);
+
     }
     private void initSwipeRefreshLayout() {
 
@@ -158,7 +160,39 @@ public class FragmentHome1 extends Fragment {
             @Override
             public void onResponse(String response) {
                 hud.dismiss();
-                HomeBean1 resultBean = new Gson().fromJson(response.toString(),HomeBean1.class);
+                HomeBean1 resultBean = null;
+
+                try {
+                    resultBean = new Gson().fromJson(response.toString(),HomeBean1.class);
+                }catch(Exception e){
+                    Log.e("TAG", e.getMessage(), e);
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .show();
+                }
+                if(resultBean ==null){
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .show();
+
+                    return;
+                }
 
                 Log.d("设备分类：", response.toString());
 
@@ -194,6 +228,15 @@ public class FragmentHome1 extends Fragment {
             }
         };
         mQueue.add(stringRequest);
+    }
+    @Event(value={R.id.imageView67})
+    private void getEvent(View view) {
+        switch (view.getId()) {
+            case R.id.imageView67:
+                //Toast.makeText(getContext(),"1243",Toast.LENGTH_SHORT).show();
+                ((ActivityHome)getActivity()).openDrawer();
+                break;
+        }
     }
 
 }

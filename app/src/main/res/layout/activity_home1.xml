@@ -168,6 +168,5 @@
         android:fitsSystemWindows="true"
         android:visibility="gone"
         app:snvHeaderLayout="@layout/nav_header"
-        app:snvMenu="@menu/test_nav_menu_1"/>
-
+        app:snvMenu="@menu/test_nav_menu_1" />
 </RelativeLayout>

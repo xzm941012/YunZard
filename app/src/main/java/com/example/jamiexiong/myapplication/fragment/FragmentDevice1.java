@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -21,10 +22,13 @@ import com.example.jamiexiong.myapplication.R;
 import com.example.jamiexiong.myapplication.Util.UrlUtil;
 import com.example.jamiexiong.myapplication.activity.ActivityDetail;
 import com.example.jamiexiong.myapplication.activity.ActivityDetail1;
+import com.example.jamiexiong.myapplication.adapter.DeviceSSAdapter;
 import com.example.jamiexiong.myapplication.adapter.ItemDeviceAdapter;
 import com.example.jamiexiong.myapplication.adapter.ItemDeviceAdapter1;
 import com.example.jamiexiong.myapplication.bean.DeviceItemBean;
+import com.example.jamiexiong.myapplication.bean.DeviceItemSS;
 import com.example.jamiexiong.myapplication.bean.DeviceTypeBean;
+import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.google.gson.Gson;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.kaopiz.kprogresshud.KProgressHUD;
@@ -50,6 +54,13 @@ import java.util.Map;
 @ContentView(R.layout.fragment_device1)
 public class FragmentDevice1 extends BaseFragment {
     private List<String> mDatas;
+
+    DevideDetailBean.DetailResultBean resultBean = null;
+
+    @ViewInject(R.id.listss)
+    ListView ssList;
+
+    private final String ssUrl = "http://"+ UrlUtil.url1+"/request?rname=i_plc.Page.zutai.shopboard.get_realtime_data";
 
     @ViewInject(R.id.swipeRefreshLayout)
     private SHSwipeRefreshLayout swipeRefreshLayout;
@@ -98,7 +109,39 @@ public class FragmentDevice1 extends BaseFragment {
             @Override
             public void onResponse(String response) {
                 hud.dismiss();
-                DeviceItemBean resultCode = new Gson().fromJson(response.toString(),DeviceItemBean.class);
+                DeviceItemBean resultCode = null;
+
+                try {
+                    resultCode = new Gson().fromJson(response.toString(),DeviceItemBean.class);
+                }catch(Exception e){
+                    Log.e("TAG", e.getMessage(), e);
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .show();
+                }
+                if(resultCode ==null){
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .show();
+
+                    return;
+                }
 
                 Log.d("设备列表：", response.toString());
 
@@ -115,8 +158,10 @@ public class FragmentDevice1 extends BaseFragment {
                             String code = deviceBeanList.get(position).getCode();
                             String name = deviceBeanList.get(position).getMachName();
                             String status = deviceBeanList.get(position).getStatus();
+                            String ids = deviceBeanList.get(position).getId();
                             Intent intent = new Intent(getContext(), ActivityDetail1.class);
                             intent.putExtra("code",code);
+                            intent.putExtra("id",ids);
                             intent.putExtra("name",name);
                             intent.putExtra("status",status);
                             startActivity(intent);

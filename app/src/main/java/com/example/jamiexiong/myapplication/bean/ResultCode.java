@@ -6,21 +6,14 @@ package com.example.jamiexiong.myapplication.bean;
 
 public class ResultCode {
 
+
     /**
-     * result : {"id":"999","token":""}
      * code : 200
+     * result : {"id":"1137","phoneNum":"18816404955","name":"18816404955","token":"","nickname":"Jamie Xiong"}
      */
 
-    private ResultBean result;
     private String code;
-
-    public ResultBean getResult() {
-        return result;
-    }
-
-    public void setResult(ResultBean result) {
-        this.result = result;
-    }
+    private ResultBean result;
 
     public String getCode() {
         return code;
@@ -30,14 +23,28 @@ public class ResultCode {
         this.code = code;
     }
 
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
     public static class ResultBean {
         /**
-         * id : 999
+         * id : 1137
+         * phoneNum : 18816404955
+         * name : 18816404955
          * token :
+         * nickname : Jamie Xiong
          */
 
         private String id;
+        private String phoneNum;
+        private String name;
         private String token;
+        private String nickname;
 
         public String getId() {
             return id;
@@ -47,6 +54,22 @@ public class ResultCode {
             this.id = id;
         }
 
+        public String getPhoneNum() {
+            return phoneNum;
+        }
+
+        public void setPhoneNum(String phoneNum) {
+            this.phoneNum = phoneNum;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
         public String getToken() {
             return token;
         }
@@ -54,6 +77,13 @@ public class ResultCode {
         public void setToken(String token) {
             this.token = token;
         }
-    }
 
+        public String getNickname() {
+            return nickname;
+        }
+
+        public void setNickname(String nickname) {
+            this.nickname = nickname;
+        }
+    }
 }

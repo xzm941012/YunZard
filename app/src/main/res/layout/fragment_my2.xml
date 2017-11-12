@@ -55,17 +55,16 @@
                     android:layout_below="@+id/circleImageView2"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="40dp"
-                    android:background="@drawable/loginbac"
-                    android:visibility="invisible">
+                    android:background="@drawable/loginbac">
 
                     <TextView
                         android:id="@+id/textView16"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/circleImageView2"
+
                         android:layout_centerHorizontal="false"
                         android:layout_centerInParent="true"
-                        android:text="登录 / 注册"
+                        android:text=""
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textColor="@color/white"
                         android:textSize="19sp" />

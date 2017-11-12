@@ -16,6 +16,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.jamiexiong.myapplication.R;
+import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.example.jamiexiong.myapplication.bean.ProduceDetailBean;
 import com.example.jamiexiong.myapplication.Util.UrlUtil;
 import com.google.gson.Gson;
@@ -113,7 +114,40 @@ public class ActivityProduceDetai extends FragmentActivity{
             public void onResponse(String response) {
                 hud.dismiss();
                 if(response!=null&&!response.equals("")){
-                    ProduceDetailBean resultCode = new Gson().fromJson(response.toString(),ProduceDetailBean.class);
+                    ProduceDetailBean resultCode = null;
+
+                    try {
+                        resultCode = new Gson().fromJson(response.toString(),ProduceDetailBean.class);
+                    }catch(Exception e){
+                        hud.dismiss();
+                        Log.e("TAG", e.getMessage(), e);
+
+                        new CircleDialog.Builder(ActivityProduceDetai.this)
+                                .setTitle("提示")
+                                .setText("网络发生异常")
+                                .setPositive("确定", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        finish();
+                                    }
+                                })
+                                .show();
+                    }
+                    if(resultCode ==null){
+                        hud.dismiss();
+
+                        new CircleDialog.Builder(ActivityProduceDetai.this)
+                                .setTitle("提示")
+                                .setText("网络发生异常")
+                                .setPositive("确定", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        finish();
+                                    }
+                                })
+                                .show();
+                        return;
+                    }
                     if(!resultCode.getCode().equals("")&&resultCode.getCode()!=null&&resultCode.getCode().equals("200")){
                         ProduceDetailBean.ProduceResultBean resultBean = resultCode.getResult().get(0);
                         gdText.setText(resultBean.getPOCode());

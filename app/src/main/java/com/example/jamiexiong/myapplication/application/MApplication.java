@@ -3,6 +3,7 @@ package com.example.jamiexiong.myapplication.application;
 import android.app.Application;
 import android.content.SharedPreferences;
 
+import com.example.jamiexiong.myapplication.bean.ResultCode;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import org.xutils.BuildConfig;
@@ -16,6 +17,16 @@ import cn.smssdk.SMSSDK;
  */
 public class MApplication extends Application {
 
+
+    private static ResultCode user = null;
+
+    public static ResultCode getUser() {
+        return user;
+    }
+
+    public static void setUser(ResultCode user) {
+        MApplication.user = user;
+    }
 
     @Override
     public void onCreate() {

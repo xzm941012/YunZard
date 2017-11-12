@@ -7,11 +7,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -20,7 +24,10 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.jamiexiong.myapplication.R;
 import com.example.jamiexiong.myapplication.Util.UrlUtil;
+import com.example.jamiexiong.myapplication.activity.ActivityDetail;
 import com.example.jamiexiong.myapplication.activity.ActivityDetailLineChart;
+import com.example.jamiexiong.myapplication.adapter.DeviceSSAdapter;
+import com.example.jamiexiong.myapplication.bean.DeviceItemSS;
 import com.example.jamiexiong.myapplication.bean.DevideDetailBean;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
@@ -32,6 +39,7 @@ import org.xutils.view.annotation.ViewInject;
 import org.xutils.x;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -42,6 +50,17 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 @ContentView(R.layout.fragment_detail)
 public class FragmentDetail extends BaseFragment {
+
+
+    List<DeviceItemSS.DeviceItemSSItem> resultBeanItem = null;
+
+    @ViewInject(R.id.listss)
+    ListView ssList;
+
+    @ViewInject(R.id.nomessageview)
+    View nomessageview;
+
+    private final String ssUrl = "http://"+ UrlUtil.url1+"/request?rname=i_plc.Page.zutai.shopboard.get_realtime_data";
 
     @ViewInject(R.id.textView322)
     TextView zqText;
@@ -100,7 +119,7 @@ public class FragmentDetail extends BaseFragment {
     @ViewInject(R.id.imageView144)
     ImageView down2;
 
-    @ViewInject(R.id.ssview)
+    @ViewInject(R.id.ssview2)
     View ssview;
 
     @ViewInject(R.id.imageView244)
@@ -149,7 +168,39 @@ public class FragmentDetail extends BaseFragment {
             @Override
             public void onResponse(String response) {
                 hud.dismiss();
-                DevideDetailBean result = new Gson().fromJson(response.toString(),DevideDetailBean.class);
+                DevideDetailBean result = null;
+
+                try {
+                    result = new Gson().fromJson(response.toString(),DevideDetailBean.class);
+                }catch(Exception e){
+                    Log.e("TAG", e.getMessage(), e);
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .show();
+                }
+                if(result ==null){
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .show();
+
+                    return;
+                }
                 DevideDetailBean.DetailResultBean resultBean = result.getResult();
 
                 zqText.setText(resultBean.getMaintenanceperiod());
@@ -221,6 +272,107 @@ public class FragmentDetail extends BaseFragment {
         mQueue.add(stringRequest);
     }
 
+    public void setListViewHeightBasedOnChildren(ListView listView) {
+        // 获取ListView对应的Adapter
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0, len = listAdapter.getCount(); i < len; i++) {
+            // listAdapter.getCount()返回数据项的数目
+            View listItem = listAdapter.getView(i, null, listView);
+            // 计算子项View 的宽高
+            listItem.measure(0, 0);
+            // 统计所有子项的总高度
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight+ (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        // listView.getDividerHeight()获取子项间分隔符占用的高度
+        // params.height最后得到整个ListView完整显示需要的高度
+        listView.setLayoutParams(params);
+    }
+    private void initSS(){
+        hud.show();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, ssUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                hud.dismiss();
+                Log.d("设备实时", "设备实时: "+response.toString());
+                DeviceItemSS result = null;
+
+                try {
+                    result = new Gson().fromJson(response.toString(),DeviceItemSS.class);
+                }catch(Exception e){
+                    Log.e("TAG", e.getMessage(), e);
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", null)
+                            .show();
+                }
+                if(result ==null){
+
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("网络发生异常")
+                            .setPositive("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getActivity().finish();
+                                }
+                            })
+                            .show();
+
+                    return;
+                }
+                resultBeanItem = result.getResult();
+                ssList.setAdapter(new DeviceSSAdapter(getActivity(),resultBeanItem));
+                setListViewHeightBasedOnChildren(ssList);
+                if(resultBeanItem.size()==0){
+                    nomessageview.setVisibility(View.VISIBLE);
+                }
+                if(result.getCode() == 200){
+
+                }else{
+                    new CircleDialog.Builder(getActivity())
+                            .setTitle("提示")
+                            .setText("数据异常")
+                            .setPositive("确定", null)
+                            .show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                hud.dismiss();
+                Log.e("TAG", error.getMessage(), error);
+
+                new CircleDialog.Builder(getActivity())
+                        .setTitle("提示")
+                        .setText("网络发生异常")
+                        .setPositive("确定", null)
+                        .show();
+            }}) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<String, String>();
+                Log.d("code是", getActivity().getIntent().getStringExtra("id"));
+                map.put("machID", getActivity().getIntent().getStringExtra("id"));
+                map.put("app", "app");
+                return map;
+            }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        mQueue.add(stringRequest);
+    }
     @Event(value={R.id.jb1,R.id.ss1,R.id.ls1,R.id.wh1,R.id.imageView52,R.id.footview})
     private void getEvent(View view) {
         Log.d("点中", view.getId()+"");
@@ -247,6 +399,9 @@ public class FragmentDetail extends BaseFragment {
                     ssview.setVisibility(View.VISIBLE);
                     rigth2.setVisibility(View.INVISIBLE);
                     down2.setVisibility(View.VISIBLE);
+                    if(resultBeanItem==null){
+                        initSS();
+                    }
                 }else{
                     press2 = 0;
                     ssview.setVisibility(View.GONE);
